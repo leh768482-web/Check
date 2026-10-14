@@ -1,1 +1,93 @@
 
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#10162b">
+  <meta name="description" content="Phát hiện điểm mốc và so sánh hình học khuôn mặt ngay trên thiết bị.">
+  <title>VNM FACE AI</title>
+  <link rel="stylesheet" href="/style.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand-mark">V</div>
+  <div><div class="brand">VNM FACE <span>AI</span></div><div class="subbrand">FACE LANDMARK LAB</div></div>
+  <div class="privacy-pill"><i></i> Xử lý trên thiết bị</div>
+</header>
+<main class="wrap">
+  <section class="hero">
+    <div class="eyebrow">AI THỊ GIÁC · BẢN DÙNG TRÊN TRÌNH DUYỆT</div>
+    <h1>Khám phá <span>điểm mốc</span><br>khuôn mặt của bạn.</h1>
+    <p>Phát hiện khuôn mặt, xem các điểm mốc và so sánh hình học giữa những ảnh bạn cung cấp.</p>
+  </section>
+  <div class="notice"><strong>Minh bạch:</strong> Điểm tương đồng là chỉ số hình học thử nghiệm, không xác minh danh tính và không phải xác suất hai ảnh thuộc cùng một người.</div>
+  <section class="panel">
+    <div class="section-head"><div><span class="step">01</span><h2>Phân tích khuôn mặt</h2></div><span class="tag">CAMERA / ẢNH</span></div>
+    <div class="capture-grid">
+      <div class="viewer">
+        <div class="viewer-label"><span class="live-dot"></span> XEM TRỰC TIẾP / ẢNH ĐÃ CHỌN</div>
+        <div class="stage" id="mainStage">
+          <video id="camera" autoplay playsinline muted hidden></video>
+          <canvas id="mainCanvas" aria-label="Ảnh và điểm mốc khuôn mặt"></canvas>
+          <div class="empty-state" id="emptyMain"><div class="face-icon">◎</div><b>Chưa có ảnh</b><span>Bật camera hoặc chọn ảnh để bắt đầu</span></div>
+          <div class="scanline"></div>
+        </div>
+        <div class="controls">
+          <button class="btn primary" id="startCamera">◎ Mở camera</button>
+          <button class="btn" id="capture" disabled>Chụp ảnh</button>
+          <label class="btn upload">↑ Tải ảnh<input id="mainUpload" type="file" accept="image/*" hidden></label>
+          <button class="btn subtle" id="stopCamera" disabled>Dừng</button>
+        </div>
+        <p class="small" id="cameraStatus" role="status">Camera yêu cầu quyền truy cập và HTTPS (hoặc localhost).</p>
+      </div>
+      <div class="metrics">
+        <div class="metric-top"><span>PHÂN TÍCH</span><span class="status" id="faceStatus">Chờ ảnh</span></div>
+        <div class="big-number" id="landmarkCount">— <small>điểm mốc</small></div>
+        <div class="metric-line"><span>Khoảng cách hai mắt</span><b id="eyeDistance">—</b></div>
+        <div class="metric-line"><span>Tỷ lệ rộng / cao</span><b id="faceRatio">—</b></div>
+        <div class="metric-line"><span>Điểm mốc</span><b id="faceFound">Chưa phát hiện</b></div>
+        <div class="legend"><span><i class="dot cyan"></i> Đường viền</span><span><i class="dot pink"></i> Mắt / mũi / miệng</span></div>
+        <p class="small">Các số đo được chuẩn hóa theo kích thước ảnh; góc chụp, ánh sáng và biểu cảm có thể làm thay đổi kết quả.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="section-head"><div><span class="step">02</span><h2>So sánh hai ảnh</h2></div><span class="tag">NGƯỠNG 80%</span></div>
+    <p class="muted">Chọn ảnh thứ nhất và thứ hai. Điểm số chỉ dựa trên hình học điểm mốc, không dùng để nhận dạng hoặc xác định danh tính.</p>
+    <div class="compare-grid">
+      <div class="upload-card">
+        <div class="upload-title">Ảnh A <span id="aState">Chưa chọn</span></div>
+        <div class="preview-stage"><canvas id="canvasA"></canvas><span id="emptyA">＋ Chọn ảnh A</span></div>
+        <label class="btn upload full">Chọn ảnh A<input id="uploadA" type="file" accept="image/*" hidden></label>
+      </div>
+      <div class="compare-symbol">↔</div>
+      <div class="upload-card">
+        <div class="upload-title">Ảnh B <span id="bState">Chưa chọn</span></div>
+        <div class="preview-stage"><canvas id="canvasB"></canvas><span id="emptyB">＋ Chọn ảnh B</span></div>
+        <label class="btn upload full">Chọn ảnh B<input id="uploadB" type="file" accept="image/*" hidden></label>
+      </div>
+    </div>
+    <div class="compare-actions"><label class="check"><input type="checkbox" id="threshold" checked> Chỉ hiện trạng thái tương đồng cao từ 80%</label><button class="btn primary" id="compareBtn">So sánh ảnh</button></div>
+    <div class="result" id="compareResult" aria-live="polite"><div class="result-placeholder">Kết quả so sánh sẽ xuất hiện tại đây.</div></div>
+  </section>
+
+  <section class="panel">
+    <div class="section-head"><div><span class="step">03</span><h2>Hồ sơ mạng xã hội</h2></div><span class="tag">NGƯỜI DÙNG CUNG CẤP</span></div>
+    <p class="muted">Nhập URL hồ sơ công khai và tự cung cấp ảnh đại diện bạn có quyền sử dụng. Trang web không tự tìm kiếm hoặc quét tài khoản.</p>
+    <div class="social-grid">
+      <div class="social-card"><label for="platform">Nền tảng</label><select id="platform"><option value="TikTok">TikTok</option><option value="Instagram">Instagram</option><option value="Facebook">Facebook</option></select></div>
+      <div class="social-card grow"><label for="profileUrl">Đường dẫn hồ sơ công khai</label><input id="profileUrl" type="url" placeholder="https://..."></div>
+      <div class="social-card"><label for="profileImage">Ảnh đại diện</label><input id="profileImage" type="file" accept="image/*"></div>
+    </div>
+    <button class="btn primary" id="profileCompare">So sánh ảnh đại diện với ảnh A</button>
+    <div class="result" id="profileResult" aria-live="polite"><div class="result-placeholder">Cần có ảnh A, ảnh đại diện và URL hồ sơ để so sánh.</div></div>
+    <p class="small">Kết quả không chứng minh chủ tài khoản là người trong ảnh. Hãy tôn trọng quyền riêng tư và chỉ sử dụng ảnh hợp pháp.</p>
+  </section>
+  <footer><span>VNM FACE AI</span><span>Không tải ảnh lên máy chủ · Không lưu ảnh</span></footer>
+</main>
+<div class="toast" id="toast" role="status"></div>
+</body>
+</html>
