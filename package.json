@@ -1,0 +1,10 @@
+{
+  "name": "vnm-face-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "VNM FACE AI - phat hien diem moc va so sanh hinh hoc khuon mat tren thiet bi",
+  "main": "server.js",
+  "scripts": { "start": "node server.js", "dev": "node server.js" },
+  "engines": { "node": ">=18" },
+  "dependencies": { "express": "^4.21.2" }
+}
